@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Snake Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <button id="sound-toggle-header" class="neon-button">🔊 SOUND ON</button>
+            <div class="score-display">
+                <span>SCORE: </span><span id="score">0</span>
+            </div>
+            <div class="high-score-display">
+                <span>HIGH: </span><span id="high-score">0</span>
+            </div>
+            <div id="level-indicator" class="level-indicator">EASY</div>
+            <button id="pause-button" class="neon-button" style="display: none;">⏸ PAUSE</button>
+        </div>
+        
+        <canvas id="game-canvas"></canvas>
+        
+        <div class="mobile-controls">
+            <div class="mobile-btn" data-action="up">↑</div>
+            <div class="mobile-btn" data-action="left">←</div>
+            <div class="mobile-btn" data-action="right">→</div>
+            <div class="mobile-btn" data-action="down">↓</div>
+        </div>
+
+        <!-- Main Menu -->
+        <div class="game-overlay" id="main-menu">
+            <h1 class="neon-text">NEON SNAKE</h1>
+            <div class="menu-buttons">
+                <button class="neon-button start-button">START GAME</button>
+                <button class="neon-button levels-button">LEVELS</button>
+                <button id="sound-toggle-menu" class="neon-button">🔊 SOUND ON</button>
+            </div>
+        </div>
+
+        <!-- Level Select -->
+        <div class="game-overlay" id="level-select-screen" style="display: none;">
+            <h1 class="neon-text">SELECT LEVEL</h1>
+            <div class="menu-buttons">
+                <button class="neon-button level-button" data-speed="200" data-level="EASY">EASY</button>
+                <button class="neon-button level-button" data-speed="150" data-level="MEDIUM">MEDIUM</button>
+                <button class="neon-button level-button" data-speed="100" data-level="HARD">HARD</button>
+                <button class="neon-button back-button">BACK</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="game-overlay" id="game-over-screen" style="display: none;">
+            <h1 class="neon-text">GAME OVER</h1>
+            <div class="final-score">
+                <p>SCORE: <span id="final-score">0</span></p>
+                <p>HIGH SCORE: <span id="final-high-score">0</span></p>
+            </div>
+            <div class="menu-buttons">
+                <button class="neon-button restart-button">PLAY AGAIN</button>
+                <button class="neon-button home-button">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div class="game-overlay" id="pause-menu" style="display: none;">
+            <h1 class="neon-text">PAUSED</h1>
+            <div class="menu-buttons">
+                <button class="neon-button" id="resume-button">RESUME</button>
+                <button class="neon-button restart-button">RESTART</button>
+                <button class="neon-button home-button">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
