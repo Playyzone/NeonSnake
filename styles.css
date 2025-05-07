@@ -128,29 +128,11 @@ body {
     text-shadow: 0 0 5px var(--neon-purple);
     box-shadow: 0 0 15px var(--neon-purple);
 }
-
-.mobile-controls {
-    display: none;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-areas: 
-        ". up ."
-        "left down right";
-    gap: 10px;
-    margin: 15px auto;
-    width: 90%;
-    max-width: 300px;
-}
-
 @media (max-width: 768px) {
     .game-container {
         height: 100vh;
         padding: 5px;
     }
-    
-    .mobile-controls {
-        display: grid;
-    }
-    
     .neon-text {
         font-size: 1.8rem;
     }
