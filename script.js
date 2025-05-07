@@ -105,7 +105,7 @@ function gameUpdate() {
     
     if (head.x === food.x && head.y === food.y) {
         playSound(sounds.eat);
-        score += 2;
+        score += 1;
         document.getElementById('score').textContent = score;
         
         if (score > highScore) {
