@@ -164,15 +164,3 @@ body {
         text-shadow: none;
     }
 }
-/* Mobile touch optimizations */
-#game-canvas {
-    touch-action: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-body {
-    overscroll-behavior: none;
-}
