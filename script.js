@@ -20,19 +20,14 @@ let nextDirection = 'right';
 let score = 0;
 let highScore = localStorage.getItem('snakeHighScore') || 0;
 let gameLoop;
-let gameSpeed = 300;
+let gameSpeed = 300; // Default easy mode
 let currentLevel = 'EASY';
 let isPaused = false;
 let gameStarted = false;
 let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
-let lastUpdateTime = 0;
-
-// Improved touch controls
 let touchStartX = 0;
 let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-const minSwipeDistance = 30;
+let lastTouchMove = 0;
 
 function initCanvasSize() {
     const header = document.querySelector('.game-header');
@@ -84,20 +79,9 @@ function placeFood() {
     }
 }
 
-function gameLoop(timestamp) {
-    if (!isPaused && gameStarted) {
-        const deltaTime = timestamp - lastUpdateTime;
-        if (deltaTime >= 1000/gameSpeed) {
-            gameUpdate();
-            lastUpdateTime = timestamp;
-        }
-        requestAnimationFrame(gameLoop);
-    } else {
-        requestAnimationFrame(gameLoop);
-    }
-}
-
 function gameUpdate() {
+    if (isPaused || !gameStarted) return;
+    
     const head = { ...snake[0] };
     direction = nextDirection;
     
@@ -121,7 +105,7 @@ function gameUpdate() {
     
     if (head.x === food.x && head.y === food.y) {
         playSound(sounds.eat);
-        score += 10;
+        score += 1;
         document.getElementById('score').textContent = score;
         
         if (score > highScore) {
@@ -140,7 +124,7 @@ function gameUpdate() {
 
 function drawGrid() {
     ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-color');
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1; // Thicker grid lines
     for (let x = 0; x <= canvas.width; x += gridSize) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -179,6 +163,7 @@ function drawGame() {
 
 function gameOver() {
     playSound(sounds.gameover);
+    clearInterval(gameLoop);
     document.getElementById('final-score').textContent = score;
     document.getElementById('final-high-score').textContent = highScore;
     showScreen('game-over-screen');
@@ -209,6 +194,8 @@ function updateSoundUI() {
 function updateLevelIndicator(level) {
     currentLevel = level;
     document.getElementById('level-indicator').textContent = level;
+    
+    // Update selected level button
     document.querySelectorAll('.level-button').forEach(btn => {
         if (btn.dataset.level === level) {
             btn.classList.add('selected');
@@ -218,34 +205,6 @@ function updateLevelIndicator(level) {
     });
 }
 
-// Touch controls
-canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    touchStartX = e.changedTouches[0].clientX;
-    touchStartY = e.changedTouches[0].clientY;
-}, { passive: false });
-
-canvas.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    if (!gameStarted || isPaused) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    touchEndY = e.changedTouches[0].clientY;
-    
-    const dx = touchEndX - touchStartX;
-    const dy = touchEndY - touchStartY;
-    
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
-        nextDirection = dx > 0 && direction !== 'left' ? 'right' : 
-                      dx < 0 && direction !== 'right' ? 'left' : direction;
-    } 
-    else if (Math.abs(dy) > minSwipeDistance) {
-        nextDirection = dy > 0 && direction !== 'up' ? 'down' : 
-                      dy < 0 && direction !== 'down' ? 'up' : direction;
-    }
-}, { passive: false });
-
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     updateSoundUI();
     updateLevelIndicator(currentLevel);
@@ -261,8 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.start-button').addEventListener('click', () => {
         initGame();
         showScreen('game-canvas');
-        lastUpdateTime = performance.now();
-        requestAnimationFrame(gameLoop);
+        clearInterval(gameLoop);
+        gameLoop = setInterval(gameUpdate, gameSpeed);
     });
 
     document.querySelector('.levels-button').addEventListener('click', () => {
@@ -286,8 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             initGame();
             showScreen('game-canvas');
-            lastUpdateTime = performance.now();
-            requestAnimationFrame(gameLoop);
+            clearInterval(gameLoop);
+            gameLoop = setInterval(gameUpdate, gameSpeed);
         });
     });
 
@@ -331,11 +290,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    canvas.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (!gameStarted || isPaused || Date.now() - lastTouchMove < 100) return;
+        lastTouchMove = Date.now();
+        
+        const touchEndX = e.touches[0].clientX;
+        const touchEndY = e.touches[0].clientY;
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        
+        if (Math.abs(dx) > Math.abs(dy)) {
+            nextDirection = dx > 0 && direction !== 'left' ? 'right' :
+                          dx < 0 && direction !== 'right' ? 'left' : direction;
+        } else {
+            nextDirection = dy > 0 && direction !== 'up' ? 'down' :
+                          dy < 0 && direction !== 'down' ? 'up' : direction;
+        }
+    });
+
     window.addEventListener('resize', () => {
         initCanvasSize();
         if (gameStarted) {
+            clearInterval(gameLoop);
             initGame();
-            drawGame();
+            gameLoop = setInterval(gameUpdate, gameSpeed);
         }
     });
 });
