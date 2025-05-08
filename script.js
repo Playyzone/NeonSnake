@@ -218,6 +218,15 @@ function updateLevelIndicator(level) {
     });
 }
 
+// Mobile button handler
+function handleButtonClick(button, handler) {
+    button.addEventListener('click', handler);
+    button.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handler(e);
+    }, { passive: false });
+}
+
 // Touch controls
 canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
@@ -245,45 +254,35 @@ canvas.addEventListener('touchend', (e) => {
     }
 }, { passive: false });
 
-// Event Listeners
+// Initialize the game
 document.addEventListener('DOMContentLoaded', () => {
-    updateSoundUI();
-    updateLevelIndicator(currentLevel);
-
-    document.querySelectorAll('[id^="sound-toggle"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            localStorage.setItem('soundEnabled', soundEnabled);
-            updateSoundUI();
-        });
-    });
-
-    document.querySelector('.start-button').addEventListener('click', () => {
+    // Setup all buttons with proper mobile handling
+    handleButtonClick(document.querySelector('.start-button'), () => {
         initGame();
         showScreen('game-canvas');
         lastUpdateTime = performance.now();
         requestAnimationFrame(gameLoop);
     });
 
-    document.querySelector('.levels-button').addEventListener('click', () => {
+    handleButtonClick(document.querySelector('.levels-button'), () => {
         showScreen('level-select-screen');
     });
 
     document.querySelectorAll('.level-button').forEach(btn => {
-        btn.addEventListener('click', () => {
+        handleButtonClick(btn, () => {
             gameSpeed = parseInt(btn.dataset.speed);
             updateLevelIndicator(btn.dataset.level);
         });
     });
 
     document.querySelectorAll('.back-button').forEach(btn => {
-        btn.addEventListener('click', () => {
+        handleButtonClick(btn, () => {
             showScreen('main-menu');
         });
     });
 
     document.querySelectorAll('.restart-button').forEach(btn => {
-        btn.addEventListener('click', () => {
+        handleButtonClick(btn, () => {
             initGame();
             showScreen('game-canvas');
             lastUpdateTime = performance.now();
@@ -292,23 +291,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('.home-button').forEach(btn => {
-        btn.addEventListener('click', () => {
+        handleButtonClick(btn, () => {
             showScreen('main-menu');
         });
     });
 
-    document.getElementById('resume-button').addEventListener('click', () => {
+    handleButtonClick(document.getElementById('resume-button'), () => {
         isPaused = false;
         document.getElementById('pause-menu').style.display = 'none';
         document.getElementById('pause-button').textContent = '⏸ PAUSE';
     });
 
-    document.getElementById('pause-button').addEventListener('click', () => {
+    handleButtonClick(document.getElementById('pause-button'), () => {
         isPaused = !isPaused;
         document.getElementById('pause-button').textContent = 
             isPaused ? '▶ RESUME' : '⏸ PAUSE';
         document.getElementById('pause-menu').style.display = 
             isPaused ? 'flex' : 'none';
+    });
+
+    document.querySelectorAll('[id^="sound-toggle"]').forEach(btn => {
+        handleButtonClick(btn, () => {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('soundEnabled', soundEnabled);
+            updateSoundUI();
+        });
     });
 
     document.addEventListener('keydown', (e) => {
@@ -338,6 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
             drawGame();
         }
     });
-});
 
-showScreen('main-menu');
+    updateSoundUI();
+    updateLevelIndicator(currentLevel);
+    showScreen('main-menu');
+});
